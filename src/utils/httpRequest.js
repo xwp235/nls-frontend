@@ -1,17 +1,7 @@
 import axios, {AxiosError} from 'axios'
 import axiosRetry from 'axios-retry'
 import qs from 'qs'
-
-let env
-const host = location.host
-if (host.indexOf('localhost') > -1 || host.indexOf('127.0.0.1') > -1) {
-    env = 'dev'
-} else if (host === 'driver-stg.marsview.cc') {
-    env = 'staging'
-} else {
-    env = 'prod'
-}
-document.documentElement.dataset.env = env
+import { message } from '@/utils/AntdGlobal'
 
 const apiConfig = {
     dev: {
@@ -54,9 +44,12 @@ axiosRetry(instance, {
 // 请求拦截器
 instance.interceptors.request.use(
     (config) => {
+        console.log(config)
+        console.log('++++')
         if (config.showLoading) {
             // showLoading()
         }
+        const env = document.documentElement.dataset.env
         const envConfig = apiConfig[env]
         if (envConfig.mock) {
             config.baseURL = envConfig.mockApi
@@ -84,7 +77,7 @@ instance.interceptors.response.use(
         }
         const data = !(response.request instanceof XMLHttpRequest) ? response : response.data
         // 如果请求是成功的（response的status为200且data的success为true）
-        const {code, msg, success} = data
+        const {msg, success} = data
         if (success) {
             // if (code === 11012 || code === 11011) {
                 // 登录过期时要求跳转回登陆页面
@@ -128,9 +121,9 @@ function throttleErrorCallback(callback) {
 function handleError(e, callback = () => {
 }) {
     if (e instanceof Error) {
-        // message.error(e.message, () => callback())
+        message.error(e.message, () => callback())
     } else {
-        // message.error('An unknown error occurred.')
+        message.error('An unknown error occurred.')
     }
 }
 
@@ -147,12 +140,13 @@ export default {
             ...options
         })
     },
-    downloadFile(url, data, fileName = 'fileName.xlsx') {
+    downloadFile(url, data, options, fileName = 'fileName.xlsx') {
         instance({
             url,
             data,
             method: 'post',
-            responseType: 'blob'
+            responseType: 'blob',
+            ...options
         }).then(response => {
             const blob = new Blob([response.data], {
                 type: response.data.type
