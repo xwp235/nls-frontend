@@ -44,8 +44,6 @@ axiosRetry(instance, {
 // 请求拦截器
 instance.interceptors.request.use(
     (config) => {
-        console.log(config)
-        console.log('++++')
         if (config.showLoading) {
             // showLoading()
         }
