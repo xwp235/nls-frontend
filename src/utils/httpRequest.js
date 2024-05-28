@@ -5,7 +5,7 @@ import { message } from '@/utils/AntdGlobal'
 
 const apiConfig = {
     dev: {
-        baseApi: '/api',
+        baseApi: '/nls',
         uploadApi: 'http://api-driver-dev.marsview.cc',
         cdn: 'http://xxx.aliyun.com',
         mock: false,
@@ -73,22 +73,22 @@ instance.interceptors.response.use(
         if (response.config.responseType === 'blob') {
             return response
         }
-        const data = !(response.request instanceof XMLHttpRequest) ? response : response.data
+        const rs = !(response.request instanceof XMLHttpRequest) ? response : response.data
         // 如果请求是成功的（response的status为200且data的success为true）
-        const {msg, success} = data
+        const {msg, success} = rs
         if (success) {
             // if (code === 11012 || code === 11011) {
                 // 登录过期时要求跳转回登陆页面
                 // storage.set(LOGIN_KEEP_STATUS, false)
                 // location.href = `/login?callback=${encodeURIComponent(location.href)}`
             // }
-            return data.data
+            return rs.data
         } else {
             if (response.config.showError === false) {
-                return Promise.resolve(data)
+                return Promise.resolve(rs)
             } else {
                 handleError(new Error(msg))
-                return Promise.reject(data)
+                return Promise.reject(rs)
             }
         }
     },

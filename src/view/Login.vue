@@ -12,10 +12,10 @@
             @finish="login"
         >
           <a-form-item
-              name="mobile" class="form-item"
+              name="account" class="form-item"
               :rules="[{ required: true, message: '请输入手机号' }]"
           >
-            <a-input v-model:value="loginMember.mobile" placeholder="手机号" size="large">
+            <a-input v-model:value="loginMember.account" placeholder="手机号" size="large">
               <template #prefix>
                 <MobileOutlined/>
               </template>
@@ -33,17 +33,17 @@
             </a-input-password>
           </a-form-item>
 
-          <a-form-item name="imageCode" class="form-item"
-                       :rules="[{ required: true, message: '请输入图片验证码', trigger: 'blur' }]">
-            <a-input v-model:value="loginMember.imageCode" placeholder="图片验证码" size="large">
-              <template #prefix>
-                <SafetyOutlined/>
-              </template>
-              <template #suffix>
-                <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>
-              </template>
-            </a-input>
-          </a-form-item>
+<!--          <a-form-item name="imageCode" class="form-item"-->
+<!--                       :rules="[{ required: true, message: '请输入图片验证码', trigger: 'blur' }]">-->
+<!--            <a-input v-model:value="loginMember.imageCode" placeholder="图片验证码" size="large">-->
+<!--              <template #prefix>-->
+<!--                <SafetyOutlined/>-->
+<!--              </template>-->
+<!--              <template #suffix>-->
+<!--                <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>-->
+<!--              </template>-->
+<!--            </a-input>-->
+<!--          </a-form-item>-->
 
           <a-form-item class="form-item">
             <a-button type="primary" block html-type="submit" class="login-btn" size="large">
@@ -61,32 +61,30 @@
 </template>
 
 <script setup>
+  import {useRouter} from 'vue-router'
   import { ref } from 'vue'
   import {MobileOutlined,SafetyOutlined,LockOutlined} from '@ant-design/icons-vue'
+  import MemberApi from '@/api/MemberApi'
+  import {message} from '@/utils/AntdGlobal'
+
+  const router = useRouter()
 
   const loginMember = ref({
-    mobile: '',
-    password: '',
-    imageCode: ''
+    account: '13000000000',
+    password: 'a123456',
+    // imageCode: ''
   })
 
-  const login = values => {
-    // console.log('开始登录:', values);
-    // axios.post("/nls/web/member/login", {
-    //   mobile: loginMember.value.mobile,
-    //   password: hexMd5Key(loginMember.value.password),
-    //   imageCode: loginMember.value.imageCode,
-    //   imageCodeToken: imageCodeToken.value,
-    // }).then(response => {
-    //   let data = response.data;
-    //   if (data.success) {
-    //     message.success("登录成功！");
+  const login = async values => {
+    console.log('开始登录:', values);
+    await MemberApi.login({
+      account: loginMember.value.account,
+      // code: registerMember.value.code,
+      password: hexMd5Key(loginMember.value.password),
+    })
+    message.success("登录成功！");
     //     store.commit("setMember", data.content);
-    //     router.push("/home/welcome");
-    //   } else {
-    //     message.error(data.message)
-    //   }
-    // })
+    router.push('/home')
   }
 
 

@@ -14,7 +14,7 @@ export default defineConfig({
         host: 'localhost',
         port: 5173,
         proxy: {
-            '/api': 'http://localhost:8080'
+            '/nls': 'http://localhost:18000'
         }
     },
     plugins: [

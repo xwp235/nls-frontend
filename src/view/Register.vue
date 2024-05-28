@@ -22,17 +22,17 @@
             </a-input>
           </a-form-item>
 
-          <a-form-item name="imageCode" class="form-item"
-                       :rules="[{ required: true, message: '请输入图片验证码', trigger: 'blur' }]">
-            <a-input v-model:value="registerMember.imageCode" placeholder="图片验证码">
-              <template #prefix>
-                <SafetyOutlined/>
-              </template>
-              <template #suffix>
-                <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>
-              </template>
-            </a-input>
-          </a-form-item>
+<!--          <a-form-item name="imageCode" class="form-item"-->
+<!--                       :rules="[{ required: true, message: '请输入图片验证码', trigger: 'blur' }]">-->
+<!--            <a-input v-model:value="registerMember.imageCode" placeholder="图片验证码">-->
+<!--              <template #prefix>-->
+<!--                <SafetyOutlined/>-->
+<!--              </template>-->
+<!--              <template #suffix>-->
+<!--                <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>-->
+<!--              </template>-->
+<!--            </a-input>-->
+<!--          </a-form-item>-->
 
           <a-form-item name="code" class="form-item"
                        :rules="[{ required: true, message: '请输入短信验证码', trigger: 'blur' }]">
@@ -87,7 +87,14 @@
 
 <script setup>
 import { ref } from 'vue'
-import {ArrowLeftOutlined,CheckCircleOutlined,LockOutlined,MessageOutlined,SafetyOutlined,MobileOutlined} from '@ant-design/icons-vue'
+import {message} from '@/utils/AntdGlobal'
+import {ArrowLeftOutlined,CheckCircleOutlined,
+  LockOutlined,MessageOutlined,SafetyOutlined,MobileOutlined} from '@ant-design/icons-vue'
+import {useRouter} from 'vue-router'
+
+import MemberApi from '@/api/MemberApi'
+
+const router = useRouter()
 
 const registerMember = ref({
   mobile: '',
@@ -98,26 +105,19 @@ const registerMember = ref({
   passwordConfirm: ''
 })
 
-const register = values => {
-  // console.log('开始注册:', values);
-  // if (registerMember.value.passwordOri !== registerMember.value.passwordConfirm) {
-  //   message.error("密码和确认密码不一致!");
-  //   return;
-  // }
-  // registerMember.value.password = registerMember.value.passwordOri
-  // axios.post("/nls/web/member/register", {
-  //   mobile: registerMember.value.mobile,
-  //   code: registerMember.value.code,
-  //   password: hexMd5Key(registerMember.value.password),
-  // }).then(response => {
-  //   let data = response.data
-  //   if (data.success) {
-  //     message.success("注册成功！")
-  //     router.push("/login")
-  //   } else {
-  //     message.error(data.message)
-  //   }
-  // })
+const register = async values => {
+  console.log('开始注册:', values);
+  if (registerMember.value.passwordOri !== registerMember.value.passwordConfirm) {
+    message.error('密码和确认密码不一致!')
+    return
+  }
+  registerMember.value.password = registerMember.value.passwordOri
+  await MemberApi.register({
+    account: registerMember.value.mobile,
+    code: registerMember.value.code,
+    password: hexMd5Key(registerMember.value.password),
+  })
+  router.push('/login')
 }
 
 // ----------- 短信验证码 --------------------
@@ -141,10 +141,16 @@ const setTime = () => {
   }, 1000)
 }
 
+/**
+ * 获取短信验证码
+ */
 const sendRegisterSmsCode = () => {
+      setTime();
+      message.success("短信发送成功！");
+
   // console.log('发送短信验证码:');
   // sendBtnLoading.value = true;
-  // axios.post("/nls/web/sms-code/send-for-register", {
+  // axios.post("/web/sms-code/send-for-register", {
   //   mobile: registerMember.value.mobile,
   //   imageCode: registerMember.value.imageCode,
   //   imageCodeToken: imageCodeToken.value,
