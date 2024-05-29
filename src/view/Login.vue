@@ -87,7 +87,7 @@
     })
     message.success("登录成功！");
     //     store.commit("setMember", data.content);
-    memberStore.member = data
+    memberStore.saveMember(data)
     router.push('/home')
   }
 

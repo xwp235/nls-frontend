@@ -6,5 +6,8 @@ export default {
     },
     login(params) {
         return request.post('/web/member/login', params, {showLoading: false,showError: false})
+    },
+    reset(params) {
+        return request.post('/web/member/reset', params, {showLoading: false,showError: true})
     }
 }

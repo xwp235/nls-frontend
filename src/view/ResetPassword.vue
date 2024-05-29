@@ -12,27 +12,27 @@
             @finish="reset"
         >
           <a-form-item
-              name="mobile" class="form-item"
+              name="account" class="form-item"
               :rules="[{ required: true, message: '请输入手机号', trigger: 'blur' }, { pattern: /^\d{11}$/, message: '手机号为11位数字', trigger: 'blur' }]"
           >
-            <a-input v-model:value="resetMember.mobile" placeholder="手机号" size="large">
+            <a-input v-model:value="resetMember.account" placeholder="手机号" size="large">
               <template #prefix>
                 <MobileOutlined/>
               </template>
             </a-input>
           </a-form-item>
 
-          <a-form-item name="imageCode" class="form-item"
-                       :rules="[{ required: true, message: '请输入图片验证码', trigger: 'blur' }]">
-            <a-input v-model:value="resetMember.imageCode" placeholder="图片验证码">
-              <template #prefix>
-                <SafetyOutlined/>
-              </template>
-              <template #suffix>
-                <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>
-              </template>
-            </a-input>
-          </a-form-item>
+<!--          <a-form-item name="imageCode" class="form-item"-->
+<!--                       :rules="[{ required: true, message: '请输入图片验证码', trigger: 'blur' }]">-->
+<!--            <a-input v-model:value="resetMember.imageCode" placeholder="图片验证码">-->
+<!--              <template #prefix>-->
+<!--                <SafetyOutlined/>-->
+<!--              </template>-->
+<!--              <template #suffix>-->
+<!--                <img v-show="!!imageCodeSrc" :src="imageCodeSrc" alt="验证码" v-on:click="loadImageCode()"/>-->
+<!--              </template>-->
+<!--            </a-input>-->
+<!--          </a-form-item>-->
 
           <a-form-item name="code" class="form-item"
                        :rules="[{ required: true, message: '请输入短信验证码', trigger: 'blur' }]">
@@ -86,11 +86,16 @@
 </template>
 
 <script setup>
+  import {useRouter} from 'vue-router'
   import { ref } from 'vue'
   import {ArrowLeftOutlined, MobileOutlined,CheckCircleOutlined,LockOutlined,MessageOutlined,SafetyOutlined} from '@ant-design/icons-vue'
+  import MemberApi from '@/api/MemberApi.js'
+  import {message} from '@/utils/AntdGlobal.js'
+
+  const router = useRouter()
 
   const resetMember = ref({
-    mobile: '',
+    account: '',
     imageCode: '',
     code: '',
     password: '',
@@ -98,25 +103,17 @@
     passwordConfirm: ''
   })
   const reset = values => {
-    // console.log('开始重置密码:', values);
-    // if (resetMember.value.passwordOri !== resetMember.value.passwordConfirm) {
-    //   message.error("密码和确认密码不一致!");
-    //   return;
-    // }
-    // resetMember.value.password = resetMember.value.passwordOri
-    // axios.post("/nls/web/member/reset", {
-    //   mobile: resetMember.value.mobile,
-    //   code: resetMember.value.code,
-    //   password: hexMd5Key(resetMember.value.password),
-    // }).then(response => {
-    //   let data = response.data;
-    //   if (data.success) {
-    //     message.success("重置密码成功！");
-    //     router.push("/login");
-    //   } else {
-    //     message.error(data.message);
-    //   }
-    // })
+    console.log('开始重置密码:', values);
+    if (resetMember.value.passwordOri !== resetMember.value.passwordConfirm) {
+      message.error("密码和确认密码不一致!");
+      return;
+    }
+    resetMember.value.password = resetMember.value.passwordOri
+    MemberApi.reset({
+      account: resetMember.value.account,
+      code: resetMember.value.code,
+      password: hexMd5Key(resetMember.value.password)
+    }).then(() => router.push("/login"))
   }
 
   // ----------- 短信验证码 --------------------

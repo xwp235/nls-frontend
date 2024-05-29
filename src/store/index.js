@@ -1,7 +1,16 @@
 import { defineStore } from 'pinia'
+import storage from 'good-storage'
 
-export const useMemberStore = defineStore('member', {
+const MEMBER = 'member'
+
+export const useMemberStore = defineStore(MEMBER, {
     state: () => ({
-        member: {}
-    })
+        member: storage.session.get(MEMBER) || {}
+    }),
+    actions: {
+        saveMember(member) {
+            this.member = member
+            storage.session.set(MEMBER, member)
+        }
+    }
 })
