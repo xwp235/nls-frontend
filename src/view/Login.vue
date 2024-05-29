@@ -64,10 +64,13 @@
   import {useRouter} from 'vue-router'
   import { ref } from 'vue'
   import {MobileOutlined,SafetyOutlined,LockOutlined} from '@ant-design/icons-vue'
+
   import MemberApi from '@/api/MemberApi'
   import {message} from '@/utils/AntdGlobal'
+  import {useMemberStore} from '@/store'
 
   const router = useRouter()
+  const memberStore = useMemberStore()
 
   const loginMember = ref({
     account: '13000000000',
@@ -77,13 +80,14 @@
 
   const login = async values => {
     console.log('开始登录:', values);
-    await MemberApi.login({
+    const data = await MemberApi.login({
       account: loginMember.value.account,
       // code: registerMember.value.code,
       password: hexMd5Key(loginMember.value.password),
     })
     message.success("登录成功！");
     //     store.commit("setMember", data.content);
+    memberStore.member = data
     router.push('/home')
   }
 

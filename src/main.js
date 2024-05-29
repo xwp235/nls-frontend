@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
 import router from './router'
@@ -14,7 +15,10 @@ if (host.indexOf('localhost') > -1 || host.indexOf('127.0.0.1') > -1) {
 }
 document.documentElement.dataset.env = env
 
+const pinia = createPinia()
+
 const app = createApp(App)
       app
+          .use(pinia)
          .use(router)
          .mount('#app')
