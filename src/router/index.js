@@ -7,6 +7,7 @@ import ResetPassword from '@/view/ResetPassword.vue'
 
 import Welcome from '@/view/home/Welcome.vue'
 import Help from '@/view/home/Help.vue'
+import FileTrans from '@/view/home/FileTrans.vue'
 
 const routes = [
     {
@@ -23,6 +24,9 @@ const routes = [
             {
                 path: 'help',
                 component: Help
+            },{
+                path: 'file-trans',
+                component: FileTrans
             }
         ]
     }, {

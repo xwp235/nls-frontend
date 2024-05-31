@@ -11,6 +11,12 @@
           <span>欢迎使用</span>
         </router-link>
       </a-menu-item>
+      <a-menu-item key="/home/file-trans">
+        <router-link to="/home/file-trans">
+          <VideoCameraOutlined/>
+          <span>语音识别</span>
+        </router-link>
+      </a-menu-item>
       <a-menu-item key="/home/help">
         <router-link to="/home/help">
           <QuestionCircleOutlined/>
@@ -22,7 +28,7 @@
 </template>
 
 <script setup>
-  import {CoffeeOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue'
+import {CoffeeOutlined, QuestionCircleOutlined, VideoCameraOutlined} from '@ant-design/icons-vue'
   import {ref, watch} from "vue";
   import {useRouter} from 'vue-router'
 
