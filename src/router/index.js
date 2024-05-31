@@ -5,17 +5,30 @@ import Login from '@/view/Login.vue'
 import Register from '@/view/Register.vue'
 import ResetPassword from '@/view/ResetPassword.vue'
 
+import Welcome from '@/view/home/Welcome.vue'
+import Help from '@/view/home/Help.vue'
+
 const routes = [
     {
-    path: '/',
-    redirect: '/login'
-}, {
-    path: '/home',
-    component: Home
-}, {
-        path: '/login',
-        component: Login
-},
+        path: '/',
+        redirect: '/login'
+    }, {
+        path: '/home',
+        component: Home,
+        children: [
+            {
+                path: 'welcome',
+                component: Welcome
+            },
+            {
+                path: 'help',
+                component: Help
+            }
+        ]
+    }, {
+            path: '/login',
+            component: Login
+    },
     {
         path: '/register',
         component: Register
