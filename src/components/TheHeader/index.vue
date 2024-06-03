@@ -48,7 +48,9 @@ const router = useRouter()
 
 watch(() => router.currentRoute.value.path, newPath => {
   selectedKeys.value = [newPath]
-}, true)
+}, {
+  immediate: true
+})
 </script>
 
 <style scoped>

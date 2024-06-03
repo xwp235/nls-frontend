@@ -1,7 +1,7 @@
 import axios, {AxiosError} from 'axios'
 import axiosRetry from 'axios-retry'
 import qs from 'qs'
-import { message } from '@/utils/AntdGlobal'
+import { notification } from '@/utils/AntdGlobal'
 
 const apiConfig = {
     dev: {
@@ -61,7 +61,7 @@ instance.interceptors.request.use(
     throttleErrorCallback(error => {
         const errMsg = error.message ? error.message : error
         // hideLoading()
-        message.error(errMsg)
+        notification.error(errMsg)
         return Promise.reject(errMsg)
     })
 )
@@ -74,21 +74,15 @@ instance.interceptors.response.use(
             return response
         }
         const rs = !(response.request instanceof XMLHttpRequest) ? response : response.data
+        const {msg, code, success} = rs
         // 如果请求是成功的（response的status为200且data的success为true）
-        const {msg, success} = rs
-        if (success) {
-            // if (code === 11012 || code === 11011) {
-                // 登录过期时要求跳转回登陆页面
-                // storage.set(LOGIN_KEEP_STATUS, false)
-                // location.href = `/login?callback=${encodeURIComponent(location.href)}`
-            // }
+        if (success && code === 200) {
             return rs.data
         } else {
             if (response.config.showError === false) {
                 return Promise.resolve(rs)
             } else {
-                handleError(new Error(msg))
-                return Promise.reject(rs)
+                return Promise.reject({msg,code})
             }
         }
     },
@@ -96,7 +90,7 @@ instance.interceptors.response.use(
         // response的状态码不为200时会走这里
         // hideLoading()
         const errMsg = error.message ? error.message : error
-        message.error(errMsg)
+        notification.error(errMsg)
         return Promise.reject(errMsg)
     })
 )
@@ -113,15 +107,6 @@ function throttleErrorCallback(callback) {
             handledErrors.add(error)
         }
         return callback(error)
-    }
-}
-
-function handleError(e, callback = () => {
-}) {
-    if (e instanceof Error) {
-        message.error(e.message, () => callback())
-    } else {
-        message.error('An unknown error occurred.')
     }
 }
 

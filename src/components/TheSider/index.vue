@@ -38,5 +38,7 @@ import {CoffeeOutlined, QuestionCircleOutlined, VideoCameraOutlined} from '@ant-
 
   watch(() => router.currentRoute.value.path, newPath => {
     selectedKeys.value = [newPath]
-  }, true)
+  }, {
+    immediate: true
+  })
 </script>
