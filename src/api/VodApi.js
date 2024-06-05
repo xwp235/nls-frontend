@@ -6,5 +6,8 @@ export default {
     },
     calcAmount(videoId) {
         return request.get(`/web/vod/calc-amount/${videoId}`,{showLoading: false,showError: true})
+    },
+    pay(params) {
+        return request.post('/web/file-trans/pay',params, {showLoading: false,showError: true})
     }
 }

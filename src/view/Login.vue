@@ -85,8 +85,7 @@
       // code: registerMember.value.code,
       password: hexMd5Key(loginMember.value.password),
     })
-    message.success("登录成功！");
-    //     store.commit("setMember", data.content);
+    message.success("登录成功！")
     memberStore.saveMember(data)
     router.push('/home')
   }

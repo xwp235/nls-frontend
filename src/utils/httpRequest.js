@@ -2,6 +2,7 @@ import axios, {AxiosError} from 'axios'
 import axiosRetry from 'axios-retry'
 import qs from 'qs'
 import { notification } from '@/utils/AntdGlobal'
+import {useMemberStore} from '@/store/index.js'
 
 const apiConfig = {
     dev: {
@@ -54,6 +55,14 @@ instance.interceptors.request.use(
         } else {
             config.baseURL = envConfig.baseApi
         }
+
+        const memberStore = useMemberStore()
+        const _token = memberStore.member.token
+        if (_token) {
+            config.headers.token = _token
+            console.log('向请求头中增加token', _token)
+        }
+
         return {
             ...config
         }

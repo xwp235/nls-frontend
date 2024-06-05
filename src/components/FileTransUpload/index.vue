@@ -1,17 +1,22 @@
 <template>
-  <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk" @close="handleClose">
+  <a-modal v-model:open="open" title="Basic Modal" @ok="handlePay" @close="handleClose" ok-text="结算" cancel-text="取消">
      <p>
        <a-button type="primary" size="large" @click="selectFile2Upload">
          <span><UploadOutlined/>选择音频</span>
        </a-button>
-       <input type="file" style="display:none;" ref="realFileComp"
-              accept=".mp3,.wav,.m4a" @change="onUploadFileChange"/>
+       <input type="file" style="display:none;" ref="realFileComp" accept=".mp3,.wav,.m4a" @change="onUploadFileChange"/>
      </p>
       <p>
-        已上传文件: {{uploadProgress.name}}<span v-show="uploadProgress.amount !== 0">，金额：<b style="color:red;font-size:18px;">{{uploadProgress.amount}} 元</b></span>
+        已选择文件: {{uploadProgress.name}}<span v-show="uploadProgress.amount !== 0">，金额：<b style="color:red;font-size:18px;">{{uploadProgress.amount}} 元</b></span>
       </p>
       <p v-if="uploadProgress.percent">
         <a-progress :percent="Number(uploadProgress.percent.toFixed(1))"/>
+      </p>
+      <p>
+        音频语言：
+        <a-select v-model:value="uploadProgress.lang" style="width: 120px">
+          <a-select-option v-for="o in LANG_ARRAY" :value="o.code">{{o.desc}}</a-select-option>
+        </a-select>
       </p>
   </a-modal>
 </template>
@@ -23,6 +28,7 @@ import {nextTick, ref} from 'vue'
 import {notification} from '@/utils/AntdGlobal'
 import VodApi from '@/api/VodApi'
 
+const LANG_ARRAY = ref(window.FILE_TRANS_LANG_ARRAY)
 const open = ref(false)
 
 const show = () => {
@@ -30,11 +36,6 @@ const show = () => {
   nextTick(() => {
     clearUploadProgress()
   })
-}
-
-const handleOk = () => {
-  clearInputFileVal()
-  open.value = false
 }
 
 const handleClose = () => {
@@ -78,7 +79,7 @@ const onUploadFileChange = () => {
     name: selectedFile.name,
     percent: 0,
     amount: 0,
-    channel: "A"
+    channel: 'A'
   }
 
   // 调用后端接口获取上传凭证,获取成功后开始上传文件
@@ -99,6 +100,7 @@ const onUploadFileChange = () => {
       aliyunUploader.addFile(selectedFile, null, null, null, null)
       aliyunUploader.startUpload()
     }
+    uploadProgress.value.vod = videoId
     calcAmount(videoId)
   })
 }
@@ -106,6 +108,7 @@ const onUploadFileChange = () => {
 const fetchUploadCredential = async (file) => {
   try {
     const key = b64_md5(`${file.name}${file.type}${file.size}${file.lastModified}`)
+    uploadProgress.value.fileSign = key
     return await VodApi.getUploadCredential({
       name: file.name,
       key
@@ -201,9 +204,71 @@ const calcAmount = async () => {
     console.log(e)
     notification.error({
       message: '系统提示',
-      description: "计算收费金额异常"
+      description: '计算收费金额异常'
     })
   }
+}
+
+// -------------- 结算 ---------------
+const payInfo = ref()
+const handlePay = async () => {
+  const uploadProgressVal = uploadProgress.value
+  console.log("准备结算：", JSON.stringify(uploadProgressVal));
+  if (Tool.isEmpty(uploadProgressVal.audio)) {
+    notification.error({
+      message: '系统提示',
+      description: "请先上传音频文件"
+    })
+    return
+  }
+  if (Tool.isEmpty(uploadProgressVal.lang)) {
+    notification.error({
+      message: '系统提示',
+      description: '请选择【音频语言】'
+    })
+    return
+  }
+  if (uploadProgressVal.amount === 0) {
+    notification.error({
+      message: '系统提示',
+      description: '金额为0，不能转换'
+    })
+    return
+  }
+  try {
+    const resp = await VodApi.pay(uploadProgressVal)
+    notification.success({
+      message: '系统提示',
+      description: "下单成功，订单号：" + resp.orderNo,
+    })
+    // let divForm = document.getElementsByTagName('divform');
+    // if (divForm.length) {
+    //   document.body.removeChild(divForm[0])
+    // }
+    // const div = document.createElement('divform');
+    // // 支付宝返回的form
+    // div.innerHTML = resp.content.channelResult;
+    // document.body.appendChild(div);
+    // document.forms[0].setAttribute('target', '_blank');
+    // document.forms[0].submit();
+    // if (uploadProgressVal.channel === 'A') {
+    //   payInfo.value = {
+    //     amount: filetrans.value.amount,
+    //     desc: "语音识别结算",
+    //     qrcode: resp.content.channelResult,
+    //     orderNo: resp.content.orderNo
+    //   };
+    //   theAlipayCom.value.handleOpen(payInfo.value);
+    // }
+  } catch (e) {
+    notification.error({
+      message: '系统提示',
+      description: '下单失败'
+    })
+  }
+
+  clearInputFileVal()
+  open.value = false
 }
 </script>
 
